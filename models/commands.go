@@ -21,9 +21,6 @@ func (s *Server) RunCommand(data string, args []byte, client net.Conn) {
 
 	if strings.HasPrefix(data, "send") {
 		commands := strings.Split(data, " ")
-
-		fmt.Println(commands)
-
 		fileName := commands[1]
 
 		s.SendData(Messages{Message: data + " " + fileName, Args: args}, client)
@@ -31,7 +28,6 @@ func (s *Server) RunCommand(data string, args []byte, client net.Conn) {
 
 	if strings.HasPrefix(data, "change status") {
 		args := strings.Split(data, "change status")
-
 		status := args[1]
 
 		s.ChangeStatusClient(client, status)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"strconv"
 	"sync"
 
 	"github.com/upload-files-go/models"
@@ -35,13 +34,6 @@ func main() {
 
 	flag.StringVar(&startServer, "start", "", "Start a TCP server")
 	flag.Parse()
-
-	_, err := strconv.Atoi(startServer)
-
-	if err != nil {
-		log.Fatal("This port is unavailable")
-		return
-	}
 
 	if startServer != "" {
 		log.Printf("Try to initialize on port %s", startServer)
