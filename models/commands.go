@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/gob"
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -40,9 +39,8 @@ func (s *Server) SubscribeClient(data string, client net.Conn) {
 
 	for _, c := range s.clients {
 		if c.conn.RemoteAddr() == client.RemoteAddr() {
-			log.Println("The client is already logged in")
 			err := gob.NewEncoder(client).Encode(&Messages{Message: "The client is already logged in"})
-			exceptions.ManageError(err, "")
+			exceptions.ManageError(err, "The client is already logged in")
 			return
 		}
 	}
