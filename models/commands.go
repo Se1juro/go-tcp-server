@@ -73,13 +73,13 @@ func (s *Server) SendData(data Messages, client net.Conn) {
 		err := gob.NewEncoder(client).Encode(&Messages{Message: msg})
 		exceptions.ManageError(err, msg)
 		return
-	} else {
-		for _, connection := range s.clients {
-			if connection.currentChannel == currentClient.currentChannel && connection.conn.RemoteAddr() != client.RemoteAddr() {
-				gob.NewEncoder(connection.conn).Encode(&data)
-			}
+	}
+	for _, connection := range s.clients {
+		if connection.currentChannel == currentClient.currentChannel && connection.conn.RemoteAddr() != client.RemoteAddr() {
+			gob.NewEncoder(connection.conn).Encode(&data)
 		}
 	}
+
 }
 
 func (s *Server) ChangeStatusClient(client net.Conn, status string) {
