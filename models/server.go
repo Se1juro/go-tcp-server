@@ -44,3 +44,7 @@ func (s *Server) NewChannel(newChannel int) {
 func (s *Server) AddClientToChannel(client Clients) {
 	s.clients = append(s.clients, client)
 }
+
+func (s *Server) GetChannels() []int {
+	return s.channels
+}

@@ -52,6 +52,7 @@ func (s *Server) SubscribeClient(data string, client net.Conn) {
 	if newChannel > 0 {
 		s.AddClientToChannel(Clients{conn: client, currentChannel: channelId, status: "receiver"})
 	}
+
 	fmt.Printf("New client subscribed to the channel %d\n", channelId)
 }
 
