@@ -37,8 +37,8 @@ func (s *Server) SubscribeClient(data string, client net.Conn) {
 	commands := strings.Split(data, " ")
 	channelId, err := strconv.Atoi(commands[2])
 
-	for _, c := range s.clients {
-		if c.conn.RemoteAddr() == client.RemoteAddr() {
+	for _, c := range s.Clients {
+		if c.Conn.RemoteAddr() == client.RemoteAddr() {
 			err := gob.NewEncoder(client).Encode(&Messages{Message: "The client is already logged in"})
 			exceptions.ManageError(err, "The client is already logged in")
 			return
@@ -50,7 +50,7 @@ func (s *Server) SubscribeClient(data string, client net.Conn) {
 	newChannel := findChannel(channelId, s)
 
 	if newChannel > 0 {
-		s.AddClientToChannel(Clients{conn: client, currentChannel: channelId, status: "receiver"})
+		s.AddClientToChannel(Clients{Conn: client, CurrentChannel: channelId, Status: "receiver"})
 	}
 
 	fmt.Printf("New client subscribed to the channel %d\n", channelId)
@@ -63,9 +63,12 @@ func (s *Server) SendData(data Messages, client net.Conn) {
 		fmt.Println("The client doesn't exist")
 		return
 	}
-	currentClient := &s.clients[indexClient]
+	currentClient := &s.Clients[indexClient]
 
-	if currentClient.status == "receiver" {
+	commands := strings.Split(data.Message, " ")
+	fileName := commands[1]
+
+	if currentClient.Status == "receiver" {
 		gob.NewEncoder(client).Encode(&Messages{Message: "The client is in receiver status"})
 		return
 	}
@@ -75,9 +78,10 @@ func (s *Server) SendData(data Messages, client net.Conn) {
 		exceptions.ManageError(err, msg)
 		return
 	}
-	for _, connection := range s.clients {
-		if connection.currentChannel == currentClient.currentChannel && connection.conn.RemoteAddr() != client.RemoteAddr() {
-			gob.NewEncoder(connection.conn).Encode(&data)
+	for _, connection := range s.Clients {
+		if connection.CurrentChannel == currentClient.CurrentChannel && connection.Conn.RemoteAddr() != client.RemoteAddr() {
+			gob.NewEncoder(connection.Conn).Encode(&data)
+			s.FileHistory = append(s.FileHistory, FileHistory{Channel: currentClient.CurrentChannel, Sender: currentClient.Conn.RemoteAddr().String(), Receiver: connection.Conn.RemoteAddr().String(), NameFile: fileName})
 		}
 	}
 
@@ -91,14 +95,14 @@ func (s *Server) ChangeStatusClient(client net.Conn, status string) {
 		return
 	}
 
-	s.clients[indexClient].status = status
+	s.Clients[indexClient].Status = status
 	msg := "Your status is " + status
 	gob.NewEncoder(client).Encode(&Messages{Message: msg})
 }
 
 func (s Server) validateSubscription(client net.Conn) bool {
-	for _, cnn := range s.clients {
-		if client.RemoteAddr() == cnn.conn.RemoteAddr() {
+	for _, cnn := range s.Clients {
+		if client.RemoteAddr() == cnn.Conn.RemoteAddr() {
 			return true
 		}
 	}
@@ -106,8 +110,8 @@ func (s Server) validateSubscription(client net.Conn) bool {
 }
 
 func (s Server) findClient(client net.Conn) int {
-	for index, cnn := range s.clients {
-		if client.RemoteAddr() == cnn.conn.RemoteAddr() {
+	for index, cnn := range s.Clients {
+		if client.RemoteAddr() == cnn.Conn.RemoteAddr() {
 			return index
 		}
 	}
